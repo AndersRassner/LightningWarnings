@@ -6,6 +6,9 @@ import java.net.URI;
 import java.net.http.*;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Iterator;
+import java.util.SimpleTimeZone;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import com.google.gson.*;
 
@@ -20,8 +23,13 @@ public class LightningWarningsApplication {
 		/*
 		Make http request to get lightning strike data from SMHI
 		*/
+		Calendar currentDate = new GregorianCalendar();
+		//System.out.println(currentDate.getTime().toString());
+		int year = currentDate.get(Calendar.YEAR);
+		int month = currentDate.get(Calendar.MONTH) + 1; //January is 0 because reasons...
+		int day = currentDate.get(Calendar.DAY_OF_MONTH);
 		HttpClient httpClient = HttpClient.newBuilder().build();
-		HttpRequest request = HttpRequest.newBuilder(URI.create("https://opendata-download-lightning.smhi.se/api/version/latest/year/2020/month/8/day/23/data.json"))
+		HttpRequest request = HttpRequest.newBuilder(URI.create("https://opendata-download-lightning.smhi.se/api/version/latest/year/" + year + "/month/" + month + "/day/" + day + "/data.json"))
 			.header("Content-Type", "application/json")
 			.build();
 		HttpResponse<String> response = null;
@@ -69,15 +77,16 @@ public class LightningWarningsApplication {
 		/*
 		Show result, starting with println, then by showing in interface
 		*/
+		Calendar latestStrike = new GregorianCalendar(new SimpleTimeZone(0, "UTC"));
 		System.out.println("Number of strikes in Malmö area: " + malmoStrikes.size());
 		if(malmoStrikes.size() > 0) {
-			String latestStrike = "00:00"; // replace with GregorianCalendar using datetime in JsonObjects in malmoStrikes
-			System.out.println("Latest strike occured at: " + latestStrike);
+			// Removing until I figure out how I should sort the strikes, if they aren't sorted already
+			//System.out.println("Latest strike occured at: " + latestStrike.getTime().toString());
 		}
 		System.out.println("Number of strikes in Skåne area: " + skaneStrikes.size());
 		if(skaneStrikes.size() > 0) {
-			String latestStrike = "00:00"; // replace with GregorianCalendar using datetime in JsonObjects in skaneStrikes
-			System.out.println("Latest strike occured at: " + latestStrike);
+			// Removing until I figure out how I should sort the strikes, if they aren't sorted already
+			//System.out.println("Latest strike occured at: " + latestStrike.getTime().toString());
 		}
 		
 

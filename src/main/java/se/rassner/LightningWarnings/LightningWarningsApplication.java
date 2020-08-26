@@ -67,15 +67,13 @@ public class LightningWarningsApplication {
 		JsonArray skaneStrikes = new JsonArray();
 		Iterator<JsonElement> strikesIt = strikes.iterator();
 		while(strikesIt.hasNext()) {
-			JsonObject strike = (JsonObject) strikesIt.next();
-			double lat = strike.get("lat").getAsDouble();
-			double lon = strike.get("lon").getAsDouble();
-			LatLonCoordinate strikeCurrent = new LatLonCoordinate(lat,lon);
-			if(malmoArea.contains(strikeCurrent)) { 
-				malmoStrikes.add(strike);
+			JsonObject jsonStrike = (JsonObject) strikesIt.next();
+			LightningStrike strike = new LightningStrike(jsonStrike);
+			if(malmoArea.contains(strike.getCoordinates())) { 
+				malmoStrikes.add(jsonStrike);
 			}
-			if(skaneArea.contains(strikeCurrent)) { 
-				skaneStrikes.add(strike);
+			if(skaneArea.contains(strike.getCoordinates())) { 
+				skaneStrikes.add(jsonStrike);
 			}
 		}
 

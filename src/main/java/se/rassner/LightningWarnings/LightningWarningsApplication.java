@@ -43,7 +43,12 @@ public class LightningWarningsApplication {
 		}
 
 		/*
-		Transform received data to workable format, if needed
+		Transform received data to workable format, if needed.
+		As far as I can tell I should be able to do what I want without transforming,
+		however, if I want to sort the strikes it seems I need to move everything
+		to an ArrayList<JsonObject>, create a Comparator<JsonObject> and in that
+		override public int compare(JsonObject lhs, JsonObject rhs) so I can call
+		Collections.sort with the ArrayList and the Comparator<JsonObject>
 		*/
 		JsonElement parser = JsonParser.parseString(response.body());
 		JsonArray strikes = parser.getAsJsonObject().getAsJsonArray("values");
@@ -81,11 +86,13 @@ public class LightningWarningsApplication {
 		System.out.println("Number of strikes in Malmö area: " + malmoStrikes.size());
 		if(malmoStrikes.size() > 0) {
 			// Removing until I figure out how I should sort the strikes, if they aren't sorted already
+			// one option would be to just implement some kind of max function to get the latest strike
 			//System.out.println("Latest strike occured at: " + latestStrike.getTime().toString());
 		}
 		System.out.println("Number of strikes in Skåne area: " + skaneStrikes.size());
 		if(skaneStrikes.size() > 0) {
 			// Removing until I figure out how I should sort the strikes, if they aren't sorted already
+			// one option would be to just implement some kind of max function to get the latest strike
 			//System.out.println("Latest strike occured at: " + latestStrike.getTime().toString());
 		}
 		

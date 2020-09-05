@@ -6,6 +6,8 @@ import java.net.URI;
 import java.net.http.*;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Iterator;
+
+// TODO: Replace with java.time apparently
 import java.util.SimpleTimeZone;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -80,7 +82,6 @@ public class LightningWarningsApplication {
 		/*
 		Show result, starting with println, then by showing in interface
 		*/
-		Calendar latestStrike = new GregorianCalendar(new SimpleTimeZone(0, "UTC"));
 		System.out.println("Number of strikes in Malmö area: " + malmoStrikes.size());
 		if(malmoStrikes.size() > 0) {
 			// Removing until I figure out how I should sort the strikes, if they aren't sorted already
@@ -92,6 +93,7 @@ public class LightningWarningsApplication {
 			// Removing until I figure out how I should sort the strikes, if they aren't sorted already
 			// one option would be to just implement some kind of max function to get the latest strike
 			//System.out.println("Latest strike occured at: " + latestStrike.getTime().toString());
+			Calendar latestStrike = new LightningStrike((JsonObject) skaneStrikes.get(0)).getTimeOfStrike();
 		}
 		
 

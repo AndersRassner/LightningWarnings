@@ -20,24 +20,15 @@ public class LightningWarningsApplication {
 		/*
 		Note that the intention is to move all these chunks into separate functions once the program stabilizes
 		*/
-		SpringApplication.run(LightningWarningsApplication.class, args);	
+		SpringApplication.run(LightningWarningsApplication.class, args);
+		new LightningWarningsApplication().go();
+	}
+	
+	public void go() {
 		/*
 		Make http request to get lightning strike data from SMHI
 		*/
-		LocalDate currentDate = LocalDate.now();
-		//System.out.println(currentDate.getTime().toString());
-		int year = currentDate.getYear();
-		int month = currentDate.getMonthValue(); //January is 0 because reasons...
-		int day = currentDate.getDayOfMonth();
-		HttpClient httpClient = HttpClient.newBuilder().build();
-		HttpRequest request = HttpRequest.newBuilder(URI.create("https://opendata-download-lightning.smhi.se/api/version/latest/year/" + year + "/month/" + month + "/day/" + day + "/data.json"))
-			.header("Content-Type", "application/json")
-			.build();
-		HttpResponse<String> response = null;
-		try{
-			response = httpClient.send(request, BodyHandlers.ofString());
-			System.out.println("Status of response is: " + response.statusCode());
-		} catch(Exception ex) {ex.printStackTrace();}
+		HttpResponse<String> response = fetchStrikesFromSmhi();
 		if(response != null && response.statusCode() != 200) {
 			System.out.println("Response's not OK, ending program");
 			return;
@@ -98,6 +89,24 @@ public class LightningWarningsApplication {
 
 		System.out.println("End of program reached");
 	
+	}
+	
+	private HttpResponse<String> fetchStrikesFromSmhi() {
+		HttpResponse<String> response = null;
+		LocalDate currentDate = LocalDate.now();
+		//System.out.println(currentDate.getTime().toString());
+		int year = currentDate.getYear();
+		int month = currentDate.getMonthValue(); //January is 0 because reasons...
+		int day = currentDate.getDayOfMonth();
+		HttpClient httpClient = HttpClient.newBuilder().build();
+		HttpRequest request = HttpRequest.newBuilder(URI.create("https://opendata-download-lightning.smhi.se/api/version/latest/year/" + year + "/month/" + month + "/day/" + day + "/data.json"))
+			.header("Content-Type", "application/json")
+			.build();
+		try{
+			response = httpClient.send(request, BodyHandlers.ofString());
+			System.out.println("Status of response is: " + response.statusCode());
+		} catch(Exception ex) {ex.printStackTrace();}
+		return response;	
 	}
 
 }

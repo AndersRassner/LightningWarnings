@@ -5,12 +5,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.net.URI;
 import java.net.http.*;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
-
-// TODO: Replace with java.time apparently
-import java.util.SimpleTimeZone;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import com.google.gson.*;
 
@@ -25,11 +24,11 @@ public class LightningWarningsApplication {
 		/*
 		Make http request to get lightning strike data from SMHI
 		*/
-		Calendar currentDate = new GregorianCalendar();
+		LocalDate currentDate = LocalDate.now();
 		//System.out.println(currentDate.getTime().toString());
-		int year = currentDate.get(Calendar.YEAR);
-		int month = currentDate.get(Calendar.MONTH) + 1; //January is 0 because reasons...
-		int day = currentDate.get(Calendar.DAY_OF_MONTH);
+		int year = currentDate.getYear();
+		int month = currentDate.getMonthValue(); //January is 0 because reasons...
+		int day = currentDate.getDayOfMonth();
 		HttpClient httpClient = HttpClient.newBuilder().build();
 		HttpRequest request = HttpRequest.newBuilder(URI.create("https://opendata-download-lightning.smhi.se/api/version/latest/year/" + year + "/month/" + month + "/day/" + day + "/data.json"))
 			.header("Content-Type", "application/json")
@@ -65,17 +64,17 @@ public class LightningWarningsApplication {
 		/*
 		Filter data using given area
 		*/
-		JsonArray malmoStrikes = new JsonArray();
-		JsonArray skaneStrikes = new JsonArray();
+		ArrayList<LightningStrike> malmoStrikes = new ArrayList<LightningStrike>();
+		ArrayList<LightningStrike> skaneStrikes = new ArrayList<LightningStrike>();
+
 		Iterator<JsonElement> strikesIt = strikes.iterator();
 		while(strikesIt.hasNext()) {
-			JsonObject jsonStrike = (JsonObject) strikesIt.next();
-			LightningStrike strike = new LightningStrike(jsonStrike);
+			LightningStrike strike = new LightningStrike((JsonObject) strikesIt.next());
 			if(malmoArea.contains(strike.getCoordinates())) { 
-				malmoStrikes.add(jsonStrike);
+				malmoStrikes.add(strike);
 			}
 			if(skaneArea.contains(strike.getCoordinates())) { 
-				skaneStrikes.add(jsonStrike);
+				skaneStrikes.add(strike);
 			}
 		}
 
@@ -84,16 +83,16 @@ public class LightningWarningsApplication {
 		*/
 		System.out.println("Number of strikes in Malmö area: " + malmoStrikes.size());
 		if(malmoStrikes.size() > 0) {
-			// Removing until I figure out how I should sort the strikes, if they aren't sorted already
-			// one option would be to just implement some kind of max function to get the latest strike
-			//System.out.println("Latest strike occured at: " + latestStrike.getTime().toString());
+			Collections.sort(malmoStrikes);
+			LocalTime latestStrike = malmoStrikes.get(malmoStrikes.size() - 1).getTimeOfStrike();
+			System.out.println("Latest Malmö strike occured at: " + latestStrike.toString());
+
 		}
 		System.out.println("Number of strikes in Skåne area: " + skaneStrikes.size());
 		if(skaneStrikes.size() > 0) {
-			// Removing until I figure out how I should sort the strikes, if they aren't sorted already
-			// one option would be to just implement some kind of max function to get the latest strike
-			//System.out.println("Latest strike occured at: " + latestStrike.getTime().toString());
-			Calendar latestStrike = new LightningStrike((JsonObject) skaneStrikes.get(0)).getTimeOfStrike();
+			Collections.sort(skaneStrikes);
+			LocalTime latestStrike = skaneStrikes.get(skaneStrikes.size() - 1).getTimeOfStrike();
+			System.out.println("Latest Skåne strike occured at: " + latestStrike.toString());
 		}
 		
 
